@@ -99,32 +99,28 @@ class PhysicsSystem:
         for particle in self.particles:
             particle_forces[particle] = self.net_force
 
-        # this adds the force from gravity
+        # iterates through pairs of particles and applies intra-particle forces
         for particle1 in self.particles:
             for particle2 in self.particles:
                 if particle2 is not particle1:
+                    # gets the
+                    p1 = particle1.position
+                    p2 = particle2.position
+                    r = p2 - p1
+                    r_norm = np.linalg.norm(r)
+
+                    # this adds the force from gravity
                     G = self.gravitational_constant
                     m1 = particle1.mass
                     m2 = particle2.mass
-                    p1 = particle1.position
-                    p2 = particle2.position
-                    r = p2 - p1
-                    r_norm = np.linalg.norm(r)
-                    F_gravity = (r / r_norm) * (G * m1 * m2) / ((r_norm * r_norm) + 0.1)
+                    F_gravity = (r / r_norm) * (G * m1 * m2) / ((r_norm * r_norm) + 0.01)
                     particle_forces[particle1] = particle_forces[particle1] + F_gravity
 
-        # this adds the force from electrical charge
-        for particle1 in self.particles:
-            for particle2 in self.particles:
-                if particle2 is not particle1:
+                    # this adds the force from electrical charge
                     k = self.coulomb_constant
                     q1 = particle1.charge
                     q2 = particle2.charge
-                    p1 = particle1.position
-                    p2 = particle2.position
-                    r = p2 - p1
-                    r_norm = np.linalg.norm(r)
-                    F_charge = (r / r_norm) * (k * q1 * q2) / ((r_norm * r_norm) + 0.1)
+                    F_charge = (r / r_norm) * (k * q1 * q2) / ((r_norm * r_norm) + 0.01)
                     particle_forces[particle1] = particle_forces[particle1] + F_charge
 
         # adds the force due to the viscosity of the environment

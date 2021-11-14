@@ -70,6 +70,7 @@ class Renderer:
         particles = self.physics_system.particles
         particle_to_sprite = {}
 
+        # creates a sprite for each of  the particles in the system
         for particle in particles:
             x = particle.position[0]
             y = particle.position[1]
