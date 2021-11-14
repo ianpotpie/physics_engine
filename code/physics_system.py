@@ -13,11 +13,11 @@ class PhysicsSystem:
         self.global_time = 0  # this keeps track of the total amount of time that has passed in the system
         self.particles = particles  # the set of particles in the system
         self.net_force = np.zeros(dimensions)  # a force applied to all particles (may update dynamically)
-        self.drag_coefficient = 0  # force felt by particles against their direction of motion ()
-        self.gravitational_constant = 1  # Newton's gravitational constant (or otherwise)
+        self.drag_coefficient = 1000  # force felt by particles against their direction of motion ()
+        self.gravitational_constant = 10  # Newton's gravitational constant (or otherwise)
         self.coulomb_constant = 1  # Coulomb's charge attraction constant (or otherwise)
         self.boundaries = [[-20, 20] for _ in range(dimensions)]  # the locations of all boundaries of the system
-        self.boundary_type = [["reflect", "reflect"] for _ in
+        self.boundary_type = [["none", "none"] for _ in
                               range(dimensions)]  # this can take values of 'reflect', 'none', 'transport'
 
     # Note: the energy of the system will only remain constant if the drag_coefficient is set to zero, the net force is
@@ -130,7 +130,7 @@ class PhysicsSystem:
         # adds the force due to the viscosity of the environment
         for particle in self.particles:
             velocity = particle.velocity
-            F_drag = - self.drag_coefficient * velocity * velocity
+            F_drag = - self.drag_coefficient * velocity
             particle_forces[particle] = particle_forces[particle] + F_drag
 
         # imparts the force onto the particles
