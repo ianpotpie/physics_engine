@@ -50,7 +50,7 @@ class PhysicsSystem:
         :return: the net gravitational potential of the system
         """
         checked = set()
-        GPE = 0
+        gravitational_potential = 0
         for particle1 in self.particles:
             checked.add(particle1)
             for particle2 in self.particles:
@@ -61,8 +61,8 @@ class PhysicsSystem:
                     p1 = particle1.position
                     p2 = particle2.position
                     r = np.linalg.norm(p2 - p1)
-                    GPE -= (G * m1 * m2) / r
-        return GPE
+                    gravitational_potential -= (G * m1 * m2) / r
+        return gravitational_potential
 
     def get_electric_potential(self):
         """
@@ -71,7 +71,7 @@ class PhysicsSystem:
         :return: the net electrical potential of the system
         """
         checked = set()
-        EPE = 0
+        electrical_potential = 0
         for particle1 in self.particles:
             checked.add(particle1)
             for particle2 in self.particles:
@@ -82,8 +82,8 @@ class PhysicsSystem:
                     p1 = particle1.position
                     p2 = particle2.position
                     r = np.linalg.norm(p2 - p1)
-                    EPE += (k * q1 * q2) / r
-        return EPE
+                    electrical_potential += (k * q1 * q2) / r
+        return electrical_potential
 
     def time_step(self, delta_t):
         """
@@ -99,7 +99,7 @@ class PhysicsSystem:
         for particle in self.particles:
             particle_forces[particle] = self.net_force
 
-        # iterates through pairs of particles and applies intra-particle forces
+        # iterates through pairs of particles and applies inter-particle forces
         for particle1 in self.particles:
             for particle2 in self.particles:
                 if particle2 is not particle1:
