@@ -2,15 +2,34 @@ import numpy as np
 
 
 class Particle:
-    def __init__(self, mass, radius, position, charge=0, velocity=None):
-        dimensions = len(position)
+    def __init__(self, position=None, velocity=None, radius=1, mass=1, charge=0):
+        default_dimensions = 2
+        if position is None:
+            position = np.zeros(default_dimensions)
         if velocity is None:
-            velocity = np.zeros(dimensions)
-        self.mass = mass
-        self.charge = charge
-        self.radius = radius
+            velocity = np.zeros(default_dimensions)
         self.position = np.array(position)
         self.velocity = np.array(velocity)
+        self.radius = radius
+        self.mass = mass
+        self.charge = charge
+
+    def set_object(self, particle_object):
+        self.position = np.array(particle_object["position"])
+        self.velocity = np.array(particle_object["velocity"])
+        self.radius = particle_object["radius"]
+        self.mass = particle_object["mass"]
+        self.charge = particle_object["charge"]
+
+    def get_object(self):
+        particle_object = {
+            "position": self.position.tolist(),
+            "velocity": self.position.tolist(),
+            "radius": self.radius,
+            "mass": self.mass,
+            "charge": self.charge
+        }
+        return particle_object
 
     def get_momentum(self):
         """
@@ -41,4 +60,5 @@ class Particle:
         old_velocity = self.velocity
         new_velocity = self.velocity + delta_v
         self.velocity = new_velocity
+        # the position is updated with the average velocity throughout its acceleration
         self.position = self.position + (delta_t * (old_velocity + new_velocity) / 2)

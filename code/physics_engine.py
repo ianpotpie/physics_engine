@@ -1,6 +1,8 @@
 import tkinter
 import time
 from PIL import Image
+import json
+import copy
 
 # width of the animation window
 import numpy as np
@@ -8,8 +10,6 @@ from physics_system import PhysicsSystem
 import errno
 import os
 from datetime import datetime
-
-from particle import Particle
 
 animation_window_width = 800
 # height of the animation window
@@ -44,7 +44,7 @@ def create_animation_canvas(window, bg_color):
     return canvas
 
 
-class Renderer:
+class PhysicsEngine:
     def __init__(self, physics_system):
         self.physics_system = physics_system
         self.background_color = "black"
@@ -54,6 +54,29 @@ class Renderer:
         self.canvas = create_animation_canvas(self.window, "white")
         self.origin = [0, 0]
         self.scale = 1
+
+    def run_interval(self, delta_t=0.1, stop_time=10, sample_times=None):
+        t = self.physics_system.global_time
+
+        sample_times.sort()
+        samples = []
+        while t < stop_time:
+            while len(sample_times) > 0 and sample_times[0] < t + (delta_t / 2):
+                sample_time = sample_times.pop(0)
+                if abs(t - sample_time) <= (delta_t / 2):
+                    particles = [particle.get_object() for particle in self.physics_system.particles]
+                    sample = {"time": sample_time, "particles": particles}
+                    samples.append(sample)
+
+            self.physics_system.time_step(delta_t)
+            t = self.physics_system.global_time
+
+        if sample_times is not None:
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            f = open(f"./samples/{timestamp}.json", "w")
+            json.dump(samples, f, indent=2)
+            f.close()
+            return timestamp
 
     def live_animation(self, framerate=60, updates_per_frame=10, sample_times=None):
         # if sample_times is not None:
@@ -99,7 +122,7 @@ class Renderer:
             if sample_times is not None:
                 while len(sample_times) > 0 and (sample_times[0] <= self.physics_system.global_time):
                     t = sample_times.pop(0)
-                    if t >= self.physics_system.global_time - (1/framerate):
+                    if t >= self.physics_system.global_time - (1 / framerate):
                         self.canvas.update()
                         filename = "../samples/" + str(t)
                         canvas_file = filename + ".ps"
