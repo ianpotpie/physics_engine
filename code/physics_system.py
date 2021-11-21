@@ -155,53 +155,54 @@ class PhysicsSystem:
         # collision characteristics
         # Assumptions for approximation: the velocity at the time of overlap is the same as the velocity at the time of
         # collision
-        for particle1, particle2 in combinations(self.particles, 2):
-            p1 = particle1.position
-            p2 = particle2.position
-            r1 = particle1.radius
-            r2 = particle2.radius
-            p_rel = p2 - p1
-            distance = np.linalg.norm(p_rel)
+        if self.collisions == "elastic":
+            for particle1, particle2 in combinations(self.particles, 2):
+                p1 = particle1.position
+                p2 = particle2.position
+                r1 = particle1.radius
+                r2 = particle2.radius
+                p_rel = p2 - p1
+                distance = np.linalg.norm(p_rel)
 
-            if distance <= r1 + r2:
-                m1 = particle1.mass
-                m2 = particle2.mass
-                v1 = particle1.velocity
-                v2 = particle2.velocity
-                v_rel = v2 - v1
+                if distance <= r1 + r2:
+                    m1 = particle1.mass
+                    m2 = particle2.mass
+                    v1 = particle1.velocity
+                    v2 = particle2.velocity
+                    v_rel = v2 - v1
 
-                # TODO: fix this block of code
-                # # when two particles are overlapping, their collision actually occurred at some time in the past
-                # # these lines of code determine the time period when that occurred.
-                # # given the velocity and position of the particles, this solves the equation for t:
-                # # ||(v2 - v2)t + (p2 - p1)|| = ||v_rel * t + p_rel|| = (r1 + r2)
-                # a = np.dot(v_rel, v_rel)
-                # b = 2 * ((v_rel[0] * p_rel[0]) + (v_rel[1] * p_rel[1]))
-                # c = r1 + r1 - np.dot(p_rel, p_rel)
-                # # we use the minimum of the quadratic root since we are looking for the time at which the particles
-                # # began overlapping rather than the time at which they will stop overlapping
-                # t_impact = - (b + np.sqrt((b ** 2) - (4 * a * c))) / (2 * a)
+                    # TODO: fix this block of code
+                    # # when two particles are overlapping, their collision actually occurred at some time in the past
+                    # # these lines of code determine the time period when that occurred.
+                    # # given the velocity and position of the particles, this solves the equation for t:
+                    # # ||(v2 - v2)t + (p2 - p1)|| = ||v_rel * t + p_rel|| = (r1 + r2)
+                    # a = np.dot(v_rel, v_rel)
+                    # b = 2 * ((v_rel[0] * p_rel[0]) + (v_rel[1] * p_rel[1]))
+                    # c = r1 + r1 - np.dot(p_rel, p_rel)
+                    # # we use the minimum of the quadratic root since we are looking for the time at which the particles
+                    # # began overlapping rather than the time at which they will stop overlapping
+                    # t_impact = - (b + np.sqrt((b ** 2) - (4 * a * c))) / (2 * a)
 
-                # the code above is not really working, so we will approximate t_impact to be half the time step
-                t_impact = - delta_t / 2
+                    # the code above is not really working, so we will approximate t_impact to be half the time step
+                    t_impact = - delta_t / 2
 
-                # this gets the particle positions at the time of impact
-                p1_impact = (t_impact * v1) + p1
-                p2_impact = (t_impact * v2) + p2
-                impact_direction = (p2_impact - p1_impact) / np.linalg.norm(p2_impact - p1_impact)
+                    # this gets the particle positions at the time of impact
+                    p1_impact = (t_impact * v1) + p1
+                    p2_impact = (t_impact * v2) + p2
+                    impact_direction = (p2_impact - p1_impact) / np.linalg.norm(p2_impact - p1_impact)
 
-                # here we project the velocities along the direction of the impact before finding the resulting
-                v1_initial = np.dot(impact_direction, v1) * impact_direction
-                v2_initial = np.dot(impact_direction, v2) * impact_direction
+                    # here we project the velocities along the direction of the impact before finding the resulting
+                    v1_initial = np.dot(impact_direction, v1) * impact_direction
+                    v2_initial = np.dot(impact_direction, v2) * impact_direction
 
-                v1_final = (v1_initial * (m1 - m2)/(m1 + m2)) + (v2_initial * 2 * m2/(m1 + m2))
-                v2_final = (v1_initial * 2 * m1/(m1 + m2)) + (v2_initial * (m2 - m1)/(m1 + m2))
+                    v1_final = (v1_initial * (m1 - m2)/(m1 + m2)) + (v2_initial * 2 * m2/(m1 + m2))
+                    v2_final = (v1_initial * 2 * m1/(m1 + m2)) + (v2_initial * (m2 - m1)/(m1 + m2))
 
-                # adjusts the positions and velocities of the particle to account for the impact
-                particle1.velocity = v1 + (v1_final - v1_initial)
-                particle2.velocity = v2 + (v2_final - v2_initial)
-                particle1.position = p1_impact - (t_impact * particle1.velocity)
-                particle2.position = p2_impact - (t_impact * particle2.velocity)
+                    # adjusts the positions and velocities of the particle to account for the impact
+                    particle1.velocity = v1 + (v1_final - v1_initial)
+                    particle2.velocity = v2 + (v2_final - v2_initial)
+                    particle1.position = p1_impact - (t_impact * particle1.velocity)
+                    particle2.position = p2_impact - (t_impact * particle2.velocity)
 
 
 
