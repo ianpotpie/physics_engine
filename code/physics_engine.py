@@ -2,7 +2,7 @@ import tkinter
 import time
 from PIL import Image
 import json
-import copy
+import ctypes
 
 # width of the animation window
 import numpy as np
@@ -28,6 +28,7 @@ animation_refresh_seconds = 0.01
 
 # The main window of the animation
 def create_simulation_window(bg_color):
+
     window = tkinter.Tk()
     window.title("Physics Simulation")
     # Uses python 3.6+ string interpolation
@@ -79,16 +80,6 @@ class PhysicsEngine:
             return timestamp
 
     def live_animation(self, framerate=60, updates_per_frame=10, sample_times=None):
-        # if sample_times is not None:
-        #     mydir = os.path.join(
-        #         os.getcwd(),
-        #         datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-        #     try:
-        #         os.makedirs(mydir)
-        #     except OSError as e:
-        #         if e.errno != errno.EEXIST:
-        #             raise  # This was not a "directory exist" error..
-
         # The actual execution starts here
         particles = self.physics_system.particles
         particle_to_sprite = {}
@@ -98,6 +89,7 @@ class PhysicsEngine:
             x = particle.position[0]
             y = particle.position[1]
             r = particle.radius
+            y = 600 - y  # this corrects for the fact that the canvas y-axis is inverted and originates from the top
             particle_to_sprite[particle] = self.canvas.create_oval(x - r, y - r, x + r, y + r, fill="black")
 
         while True:
@@ -115,7 +107,7 @@ class PhysicsEngine:
             for particle in particles:
                 sprite = particle_to_sprite[particle]
                 position_delta = position_deltas[particle]
-                self.canvas.move(sprite, position_delta[0], position_delta[1])
+                self.canvas.move(sprite, position_delta[0], -1 * position_delta[1])
 
             self.window.update()
 
